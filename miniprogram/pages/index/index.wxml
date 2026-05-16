@@ -1,0 +1,5 @@
+<view style="padding: 50rpx; text-align: center;">
+  <view style="font-size: 40rpx; margin-bottom: 80rpx; color: #333; font-weight: bold;">萝蔔大魔王的卧室云印节点</view>
+  <button type="primary" bindtap="chooseAndPrint" style="width: 80%; border-radius: 50rpx; background-color: #07c160;">选择手机文件并打印</button>
+  <view style="font-size: 24rpx; color: #999; margin-top: 100rpx;">当前拓扑：双WAN / 链路聚合守护中</view>
+</view>

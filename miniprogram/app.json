@@ -1,0 +1,10 @@
+{
+    "pages": [
+        "pages/index/index"
+    ],
+    "window": {
+        "navigationBarBackgroundColor": "#ffffff",
+        "navigationBarTitleText": "大魔王的卧室云印店",
+        "navigationBarTextStyle": "black"
+    }
+}

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeshPrint - 极速云端打印</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            padding: 40px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            text-align: center;
+            transform: translateY(0);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #ffffff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        p {
+            color: #fff;
+            font-weight: 300;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255,255,255,0.6);
+            border-radius: 16px;
+            padding: 40px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            background: rgba(255,255,255,0.3);
+            border-color: #fff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 25px;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .status {
+            margin-top: 20px;
+            font-weight: 600;
+            min-height: 24px;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            transition: opacity 0.3s ease;
+        }
+
+        /* 气泡动画特效 */
+        .bubbles {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: rise 10s infinite ease-in;
+        }
+        @keyframes rise {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-1000px) scale(1.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bubbles">
+        <div class="bubble" style="left:10%; width:40px; height:40px; animation-duration:8s;"></div>
+        <div class="bubble" style="left:30%; width:80px; height:80px; animation-duration:12s; animation-delay:2s;"></div>
+        <div class="bubble" style="left:70%; width:60px; height:60px; animation-duration:9s; animation-delay:1s;"></div>
+        <div class="bubble" style="left:90%; width:50px; height:50px; animation-duration:15s;"></div>
+    </div>
+
+    <div class="container">
+        <h1>MeshPrint</h1>
+        <p>打破局域网束缚，全球极速投递出纸</p>
+
+        <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <span class="upload-icon">📄</span>
+            <span class="upload-text" id="fileName">点击或拖拽文件到此区域</span>
+            <input type="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx">
+        </div>
+
+        <button class="btn" id="uploadBtn">立即投递云端</button>
+        <div class="status" id="statusText"></div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileNameDisplay = document.getElementById('fileName');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const statusText = document.getElementById('statusText');
+
+        let selectedFile = null;
+
+        // 拖拽交互
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        });
+
+        fileInput.addEventListener('change', function(e) {
+            handleFiles(this.files);
+        });
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                selectedFile = files[0];
+                fileNameDisplay.textContent = selectedFile.name;
+                statusText.textContent = '文件已就绪，请点击投递';
+                statusText.style.color = '#fff';
+                // 微动画提示
+                uploadBtn.style.transform = 'scale(1.05)';
+                setTimeout(() => uploadBtn.style.transform = 'scale(1)', 200);
+            }
+        }
+
+        uploadBtn.addEventListener('click', async () => {
+            if (!selectedFile) {
+                statusText.textContent = '⚠️ 请先选择要打印的文件！';
+                statusText.style.color = '#ffeb3b';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            statusText.textContent = '🚀 正在穿透上传中...';
+            statusText.style.color = '#fff';
+            uploadBtn.disabled = true;
+            uploadBtn.style.opacity = '0.7';
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.code === 200) {
+                    statusText.textContent = '✅ 投递成功！卧室打印机正在预热...';
+                    statusText.style.color = '#4ade80';
+                    selectedFile = null;
+                    fileNameDisplay.textContent = '点击或拖拽文件到此区域';
+                    fileInput.value = '';
+                } else {
+                    statusText.textContent = '❌ 拦截或失败: ' + (result.detail || result.msg);
+                    statusText.style.color = '#f87171';
+                }
+            } catch (error) {
+                statusText.textContent = '⚠️ 网络开小差了，请重试';
+                statusText.style.color = '#f87171';
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.style.opacity = '1';
+            }
+        });
+    </script>
+</body>
+</html>
