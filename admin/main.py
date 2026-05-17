@@ -52,11 +52,42 @@ UPLOAD_FOLDER = os.path.join(_BASE_DIR, 'uploads')          # 文件上传存储
 DB_PATH = os.path.join(_BASE_DIR, 'print_tasks.db')          # SQLite 数据库路径
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# ========== 打印机配置 ==========
-PRINTER_IP = "192.168.31.120"           # HP M1213nf 打印机IP（用户确认）
-PRINTER_PORT = 9100                       # PCL/JETDirect 默认端口
-PRINTER_AUTO_INIT_ENABLED = True         # 是否启用打印后自动初始化
-PRINTER_INIT_METHOD = "pcl"              # pcl / ews / snmp（优先pcl）
+# ========== 打印机配置（动态读取 + 持久化）==========
+_PRINTER_CONFIG_FILE = os.path.join(_BASE_DIR, 'printer_config.json')
+
+def _load_printer_config() -> dict:
+    """从配置文件加载打印机配置，不存在则返回默认值"""
+    import json
+    default = {
+        "printer_ip": "127.0.0.1",
+        "printer_port": 9100,
+        "auto_init_enabled": True,
+        "init_method": "pcl"
+    }
+    if os.path.exists(_PRINTER_CONFIG_FILE):
+        try:
+            with open(_PRINTER_CONFIG_FILE, 'r', encoding='utf-8') as f:
+                cfg = json.load(f)
+                return {**default, **cfg}
+        except Exception as e:
+            logger.warning(f"打印机配置文件读取失败，使用默认值: {e}")
+    return default
+
+def _save_printer_config(cfg: dict):
+    """保存打印机配置到文件"""
+    import json
+    try:
+        with open(_PRINTER_CONFIG_FILE, 'w', encoding='utf-8') as f:
+            json.dump(cfg, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.error(f"打印机配置文件保存失败: {e}")
+
+_printer_cfg = _load_printer_config()
+PRINTER_IP = _printer_cfg["printer_ip"]
+PRINTER_PORT = _printer_cfg["printer_port"]
+PRINTER_AUTO_INIT_ENABLED = _printer_cfg["auto_init_enabled"]
+PRINTER_INIT_METHOD = _printer_cfg["init_method"]
+logger.info(f"打印机配置已加载: IP={PRINTER_IP}, Port={PRINTER_PORT}")
 
 
 def _init_printer(printer_ip: str = PRINTER_IP, printer_port: int = PRINTER_PORT) -> bool:
@@ -337,13 +368,17 @@ async def user_login(request: Request):
                 )
                 conn.commit()
             logger.info(f"用户登录成功: {username}")
+            # 判断是否为管理员
+            is_admin = (username.lower() == "admin" or
+                        (user.get("role") and "admin" in str(user["role"]).lower()))
             return _json_response(
                 code=0,
                 data={
                     "token": token,
                     "id": user["id"],
                     "username": username,
-                    "nickname": user["nickname"]
+                    "nickname": user["nickname"],
+                    "is_admin": is_admin
                 },
                 msg="登录成功"
             )
@@ -767,7 +802,14 @@ async def printer_config(request: Request):
         if "init_method" in data:
             PRINTER_INIT_METHOD = data["init_method"]
 
-        logger.info(f"打印机配置已更新: IP={PRINTER_IP}, Port={PRINTER_PORT}, AutoInit={PRINTER_AUTO_INIT_ENABLED}")
+        # 持久化到配置文件
+        _save_printer_config({
+            "printer_ip": PRINTER_IP,
+            "printer_port": PRINTER_PORT,
+            "auto_init_enabled": PRINTER_AUTO_INIT_ENABLED,
+            "init_method": PRINTER_INIT_METHOD
+        })
+        logger.info(f"打印机配置已更新并持久化: IP={PRINTER_IP}, Port={PRINTER_PORT}, AutoInit={PRINTER_AUTO_INIT_ENABLED}")
         return _json_response(code=0, msg="配置已更新")
     except Exception as e:
         logger.error(f"更新打印机配置异常: {e}")

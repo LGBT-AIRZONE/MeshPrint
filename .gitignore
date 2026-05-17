@@ -41,6 +41,9 @@ Thumbs.db
 *_backup.db
 *_temp.db
 
+# 运行时生成的配置文件（不包含敏感信息，由 admin/frontend/src/ 中的配置页面动态生成）
+printer_config.json
+
 # 上传文件目录（运行时生成）
 uploads/
 

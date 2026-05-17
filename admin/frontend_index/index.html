@@ -403,8 +403,14 @@
                 if (result.code === 0) {
                     localStorage.setItem('meshprint_token', result.data.token);
                     localStorage.setItem('meshprint_nickname', result.data.nickname || result.data.username);
-                    showUploadArea(result.data.nickname || result.data.username);
-                    loginError.textContent = '';
+                    // admin 用户登录后跳转到管理面板
+                    if (result.data.is_admin) {
+                        loginError.textContent = '管理员登录成功，正在跳转...';
+                        setTimeout(() => { window.location.href = '/admin/'; }, 500);
+                    } else {
+                        showUploadArea(result.data.nickname || result.data.username);
+                        loginError.textContent = '';
+                    }
                 } else {
                     loginError.textContent = result.msg || '登录失败';
                 }
