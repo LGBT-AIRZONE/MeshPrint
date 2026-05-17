@@ -1,61 +1,171 @@
-# MeshPrint V4 全栈云打印系统
+# MeshPrint · 云打印系统
 
-MeshPrint 是一个基于 **FastAPI** 和 **Vue 3** 构建的高性能、分布式的全栈云打印与物理打印轮询系统。它采用“双擎架构”，支持跨网段的高效打印任务分发、打印队列管理以及基于 AI/安全策略的恶意文件检测，旨在提供一个开箱即用的现代化企业级打印网关。
+> 基于 FastAPI + Vue 3 的分布式云打印与物理打印管理系统  
+> 支持：微信小程序远程投递、物理打印机轮询打印、Vue 管理后台
 
 ---
 
-## ? 核心特性
+## 功能特性
 
-- **? 全栈融合架构**: 基于 `fast-element-admin` 深度整合定制，FastAPI 提供强劲后端，Vue 提供现代化前端管理界面。
-- **?️ 独立打印节点 (Client)**: 采用 Python 编写的轻量级轮询网关 (`client_printer.py`)，可部署在任何连接了物理打印机的终端上。
-- **? 智能安全检测**: 内置针对 PDF 和图像的自动化内容检测，支持拦截恶意打印请求，保障网络与内容安全。
-- **✨ 拟物化 / 毛玻璃交互**: 前端投递页面采用现代化的 Glassmorphism（毛玻璃）设计风格，提供极致的视觉体验。
-- **⚡ 一键化部署**: 提供全自动环境配置脚本和一键启动终端，小白也能在三分钟内完成双端（前后端与物理客户端）部署。
+- ✅ **文件投递**：支持 DOC/DOCX/XLS/XLSX/PPT/PPTX/PDF/TXT 等常用格式
+- ✅ **自动打印**：文件上传后自动触发 Windows 默认打印机打印
+- ✅ **打印机初始化**：PCL 命令自动清除 HP M1213nf 非原装硒鼓警告
+- ✅ **管理后台**：Vue 3 管理面板，支持用户管理、打印机配置、日志查看
+- ✅ **Token 认证**：基于 MD5 的用户认证系统
+- ✅ **微信小程序**：支持远程投递打印
 
-## ? 项目结构
+---
 
-```text
-MeshPrint/
-├── backend/                # 原生后端逻辑 (已部分整合进 fast-element-admin)
-├── fast-element-admin/     # 核心框架层 (含 FastAPI 后端与 Vue3 前端)
-│   ├── backend/            # 系统主 API 网关与业务逻辑
-│   └── frontend/           # Vue 管理后台面板
-├── client/                 # 物理打印客户端组件 (轮询打印核心)
-│   └── client_printer.py   # 连接物理打印机并拉取云端任务
-├── script/                 # 自动化脚本目录
+## 项目结构
+
+```
+D:/MeshPrint/
+│
+├── admin/                          # 主服务（FastAPI 统一后端）
+│   ├── main.py                     # 服务入口
+│   ├── requirements.txt             # Python 依赖
+│   ├── print_tasks.db              # SQLite 数据库（运行时生成）
+│   ├── frontend/                   # Vue 3 管理面板源码
+│   │   ├── dist/                  # 构建产物（已编译前端）
+│   │   └── src/                   # 前端源码
+│   ├── frontend_index/            # 极简投递前端
+│   └── dist/                      # 打包产物
+│       └── MeshPrint.exe          # PyInstaller 打包的可执行文件
+│
+├── miniprogram/                    # 微信小程序（用户端）
+│   ├── app.json
+│   ├── app.js
+│   ├── app.wxss
+│   └── pages/
+│       ├── index/                 # 首页（文件选择）
+│       └── submit/                # 提交页面
+│
+├── script/                         # 运维脚本
 │   └── 0.一键全自动配置全栈开发环境.ps1
-└── 启动 MeshPrint 全家桶.bat # 终极双擎启动器
+│
+├── .gitignore                      # Git 忽略配置
+├── README.md                       # 本文档
+└── MeshPrint-Upload Token.txt     # GitHub 上传 Token（请勿上传！）
+
 ```
 
-## ? 快速开始
+---
 
-### 1. 环境初始化
-无需手动配置复杂的 Python 或 Node.js 环境，我们提供了全自动脚本。
-以管理员身份运行 PowerShell，并执行：
-```powershell
-.\script\0.一键全自动配置全栈开发环境.ps1
+## 快速开始
+
+### 方式一：运行 EXE（推荐，无需配置环境）
+
 ```
-*(该脚本将自动配置虚拟环境、安装依赖、初始化 SQLite 数据库及前端环境)*
+admin/dist/MeshPrint.exe    ← 双击运行，自动启动服务
+```
 
-### 2. 启动服务
-双击运行根目录下的 `启动 MeshPrint 全家桶.bat`，或在命令行中运行它。
-该启动器会同时唤起两个核心进程：
-- **核心后端服务**：提供 API 并在本地 5000 端口挂载前后端整合服务。
-- **物理打印网关**：实时监听云端打印队列。
+> EXE 包含全部运行环境，无需安装 Python / Node.js
 
-### 3. 访问系统
-- **前端投递页面 (UI 绝美)**: [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
-- **系统内部管理面板**: [http://127.0.0.1:5000/admin/](http://127.0.0.1:5000/admin/)
+### 方式二：源码运行
 
-## ⚙️ 技术栈
+```bash
+# 1. 安装 Python 依赖
+cd admin
+pip install -r requirements.txt
 
-- **后端**: FastAPI, SQLAlchemy, SQLite, Pydantic, Uvicorn
-- **前端**: Vue 3, Element Plus, Vite, TailwindCSS (可选)
-- **客户端网关**: Python (Win32 API/CUPS 兼容)
+# 2. 启动服务
+python main.py
 
-## ? 许可证
+# 3. 访问地址
+```
+
+---
+
+## 访问地址
+
+| 服务 | 地址 | 说明 |
+|------|------|------|
+| **投递页面** | http://127.0.0.1:5000/ | 极简文件投递 |
+| **管理面板** | http://127.0.0.1:5000/admin/ | Vue 后台管理 |
+| **API 文档** | http://127.0.0.1:5000/docs | FastAPI 接口文档 |
+
+---
+
+## 默认账号
+
+| 角色 | 用户名 | 密码 |
+|------|--------|------|
+| 管理员 | admin | 123456 |
+
+---
+
+## API 接口
+
+### 认证相关
+
+| 接口 | 方法 | 说明 |
+|------|------|------|
+| `/user/login` | POST | 用户登录 |
+| `/user/register` | POST | 用户注册 |
+| `/user/logout` | POST | 用户登出 |
+| `/user/getUserInfoByToken` | POST | 获取用户信息 |
+| `/user/getMenuByToken` | POST | 获取菜单权限 |
+| `/user/list` | POST | 用户列表（需认证） |
+| `/user/saveOrUpdate` | POST | 保存/更新用户 |
+| `/user/deleted` | POST | 删除用户 |
+
+### 打印相关
+
+| 接口 | 方法 | 说明 |
+|------|------|------|
+| `/api/upload` | POST | 上传文件 |
+| `/api/fetch_job` | GET | 轮询获取任务 |
+| `/api/download/{filename}` | GET | 下载文件 |
+| `/api/complete_job` | POST | 确认完成 |
+| `/api/print_logs` | GET | 打印日志（需admin） |
+
+### 打印机管理
+
+| 接口 | 方法 | 说明 |
+|------|------|------|
+| `/api/printer/info` | GET | 获取配置 |
+| `/api/printer/init` | POST | 手动初始化 |
+| `/api/printer/config` | POST | 更新配置 |
+
+---
+
+## 微信小程序
+
+小程序端配置为 HTTPS 公网地址，支持国内任意地点远程投递打印。
+
+详见 `miniprogram/` 目录。
+
+---
+
+## 一键配置环境
+
+运行 `script/0.一键全自动配置全栈开发环境.ps1` 可自动安装：
+- Python 3.11
+- Node.js LTS
+- Git
+- SQLite CLI
+- Vue CLI / Vite
+- FastAPI 及相关依赖
+
+---
+
+## 技术栈
+
+| 类别 | 技术 |
+|------|------|
+| 后端框架 | FastAPI + Uvicorn |
+| 数据库 | SQLite |
+| 前端框架 | Vue 3 + Element Plus |
+| 构建工具 | Vite |
+| 打包工具 | PyInstaller |
+| 小程序 | 微信小程序 |
+
+---
+
+## 许可证
 
 MIT License
 
 ---
-*Powered by MeshPrint Team & fast-element-admin*
+
+*MeshPrint · Powered by FastAPI + Vue 3*

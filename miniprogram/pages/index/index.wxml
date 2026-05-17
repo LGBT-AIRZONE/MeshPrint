@@ -1,5 +1,12 @@
 <view style="padding: 50rpx; text-align: center;">
-  <view style="font-size: 40rpx; margin-bottom: 80rpx; color: #333; font-weight: bold;">萝蔔大魔王的卧室云印节点</view>
+  <view style="font-size: 40rpx; margin-bottom: 40rpx; color: #333; font-weight: bold;">萝蔔大魔王的卧室云印节点</view>
+
+  <!-- 用户信息栏 -->
+  <view style="display: flex; align-items: center; justify-content: center; gap: 20rpx; margin-bottom: 40rpx; padding: 20rpx; background: #f0f9f0; border-radius: 20rpx;">
+    <text style="font-size: 28rpx; color: #666;">👤 {{nickname}}</text>
+    <button size="mini" type="warn" bindtap="logout" style="border-radius: 20rpx;">退出</button>
+  </view>
+
   <button type="primary" bindtap="chooseAndPrint" style="width: 80%; border-radius: 50rpx; background-color: #07c160;">选择手机文件并打印</button>
   <view style="font-size: 24rpx; color: #999; margin-top: 100rpx;">当前拓扑：双WAN / 链路聚合守护中</view>
 </view>

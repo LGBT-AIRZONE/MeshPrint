@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeshPrint - 极速云端打印</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            padding: 40px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            text-align: center;
+            transform: translateY(0);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #ffffff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        p {
+            color: #fff;
+            font-weight: 300;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255,255,255,0.6);
+            border-radius: 16px;
+            padding: 40px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            background: rgba(255,255,255,0.3);
+            border-color: #fff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 25px;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .status {
+            margin-top: 20px;
+            font-weight: 600;
+            min-height: 24px;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            transition: opacity 0.3s ease;
+        }
+
+        /* 登录/注册表单样式 */
+        .auth-container {
+            margin-bottom: 25px;
+        }
+        .auth-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .auth-tab {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .auth-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        .auth-tab:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .auth-form {
+            display: none;
+        }
+        .auth-form.active {
+            display: block;
+        }
+        .auth-input {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+            box-sizing: border-box;
+            transition: all 0.3s;
+        }
+        .auth-input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+        .auth-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255,255,255,0.25);
+        }
+        .auth-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+        .auth-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        .auth-error {
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            min-height: 20px;
+        }
+        .auth-success {
+            color: #4ade80;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+
+        /* 投递区隐藏 */
+        .upload-section {
+            display: none;
+        }
+        .upload-section.visible {
+            display: block;
+        }
+
+        /* 用户信息栏 */
+        .user-info {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 20px;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+        .user-info.visible {
+            display: flex;
+        }
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+        .logout-btn:hover {
+            background: rgba(255,100,100,0.5);
+        }
+
+        /* 气泡动画特效 */
+        .bubbles {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: rise 10s infinite ease-in;
+        }
+        @keyframes rise {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-1000px) scale(1.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bubbles">
+        <div class="bubble" style="left:10%; width:40px; height:40px; animation-duration:8s;"></div>
+        <div class="bubble" style="left:30%; width:80px; height:80px; animation-duration:12s; animation-delay:2s;"></div>
+        <div class="bubble" style="left:70%; width:60px; height:60px; animation-duration:9s; animation-delay:1s;"></div>
+        <div class="bubble" style="left:90%; width:50px; height:50px; animation-duration:15s;"></div>
+    </div>
+
+    <div class="container">
+        <h1>MeshPrint</h1>
+        <p>打破局域网束缚，全球极速投递出纸</p>
+
+        <!-- 用户信息栏（登录后显示） -->
+        <div class="user-info" id="userInfo">
+            <span id="userNickname">👤 已登录</span>
+            <button class="logout-btn" onclick="logout()">退出</button>
+        </div>
+
+        <!-- 登录/注册表单（初始显示） -->
+        <div class="auth-container" id="authContainer">
+            <div class="auth-tabs">
+                <span class="auth-tab active" onclick="switchTab('login')">登录</span>
+                <span class="auth-tab" onclick="switchTab('register')">注册</span>
+            </div>
+
+            <!-- 登录表单 -->
+            <div class="auth-form active" id="loginForm">
+                <input type="text" class="auth-input" id="loginUsername" placeholder="用户名">
+                <input type="password" class="auth-input" id="loginPassword" placeholder="密码" onkeydown="if(event.key==='Enter')doLogin()">
+                <button class="auth-btn" onclick="doLogin()">登录</button>
+                <div class="auth-error" id="loginError"></div>
+            </div>
+
+            <!-- 注册表单 -->
+            <div class="auth-form" id="registerForm">
+                <input type="text" class="auth-input" id="regUsername" placeholder="用户名（3位以上）">
+                <input type="password" class="auth-input" id="regPassword" placeholder="密码（6位以上）">
+                <input type="text" class="auth-input" id="regNickname" placeholder="昵称（可选）">
+                <button class="auth-btn" onclick="doRegister()">注册</button>
+                <div class="auth-error" id="regError"></div>
+            </div>
+        </div>
+
+        <!-- 投递区（登录后显示） -->
+        <div class="upload-section" id="uploadSection">
+        <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <span class="upload-icon">📄</span>
+            <span class="upload-text" id="fileName">点击或拖拽文件到此区域</span>
+            <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.png,.jpg,.jpeg,.bmp,.gif,.tiff,.wps">
+        </div>
+
+        <button class="btn" id="uploadBtn">立即投递云端</button>
+        <div class="status" id="statusText"></div>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileNameDisplay = document.getElementById('fileName');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const statusText = document.getElementById('statusText');
+        const authContainer = document.getElementById('authContainer');
+        const uploadSection = document.getElementById('uploadSection');
+        const userInfo = document.getElementById('userInfo');
+        const userNickname = document.getElementById('userNickname');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const loginError = document.getElementById('loginError');
+        const regError = document.getElementById('regError');
+
+        let selectedFile = null;
+
+        // ========== 登录/注册相关 ==========
+
+        // 页面加载时检查登录状态
+        window.onload = function() {
+            const token = localStorage.getItem('meshprint_token');
+            const nickname = localStorage.getItem('meshprint_nickname');
+            if (token) {
+                showUploadArea(nickname);
+            }
+        };
+
+        function switchTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            if (tab === 'login') {
+                document.querySelector('.auth-tab:nth-child(1)').classList.add('active');
+                loginForm.classList.add('active');
+            } else {
+                document.querySelector('.auth-tab:nth-child(2)').classList.add('active');
+                registerForm.classList.add('active');
+            }
+            loginError.textContent = '';
+            regError.textContent = '';
+        }
+
+        async function doLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                loginError.textContent = '请输入用户名和密码';
+                return;
+            }
+
+            loginError.textContent = '登录中...';
+
+            try {
+                const response = await fetch('/user/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username, password})
+                });
+                const result = await response.json();
+
+                if (result.code === 0) {
+                    localStorage.setItem('meshprint_token', result.data.token);
+                    localStorage.setItem('meshprint_nickname', result.data.nickname || result.data.username);
+                    showUploadArea(result.data.nickname || result.data.username);
+                    loginError.textContent = '';
+                } else {
+                    loginError.textContent = result.msg || '登录失败';
+                }
+            } catch (error) {
+                loginError.textContent = '网络错误，请重试';
+            }
+        }
+
+        async function doRegister() {
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const nickname = document.getElementById('regNickname').value.trim();
+
+            if (!username || !password) {
+                regError.textContent = '请输入用户名和密码';
+                return;
+            }
+            if (username.length < 3) {
+                regError.textContent = '用户名至少3位';
+                return;
+            }
+            if (password.length < 6) {
+                regError.textContent = '密码至少6位';
+                return;
+            }
+
+            regError.textContent = '注册中...';
+
+            try {
+                const response = await fetch('/user/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username, password, nickname: nickname || username})
+                });
+                const result = await response.json();
+
+                if (result.code === 0) {
+                    regError.className = 'auth-success';
+                    regError.textContent = '注册成功！请登录';
+                    setTimeout(() => switchTab('login'), 1500);
+                } else {
+                    regError.className = 'auth-error';
+                    regError.textContent = result.msg || '注册失败';
+                }
+            } catch (error) {
+                regError.textContent = '网络错误，请重试';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('meshprint_token');
+            localStorage.removeItem('meshprint_nickname');
+            // 隐藏投递区，显示登录区
+            authContainer.style.display = 'block';
+            uploadSection.classList.remove('visible');
+            userInfo.classList.remove('visible');
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        function showUploadArea(nickname) {
+            authContainer.style.display = 'none';
+            uploadSection.classList.add('visible');
+            userInfo.classList.add('visible');
+            userNickname.textContent = '👤 ' + (nickname || '已登录');
+        }
+
+        function getAuthHeader() {
+            const token = localStorage.getItem('meshprint_token');
+            return token ? {'Authorization': 'Bearer ' + token} : {};
+        }
+
+        // ========== 文件上传相关 ==========
+
+        // 拖拽交互
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        });
+
+        fileInput.addEventListener('change', function(e) {
+            handleFiles(this.files);
+        });
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                selectedFile = files[0];
+                fileNameDisplay.textContent = selectedFile.name;
+                statusText.textContent = '文件已就绪，请点击投递';
+                statusText.style.color = '#fff';
+                // 微动画提示
+                uploadBtn.style.transform = 'scale(1.05)';
+                setTimeout(() => uploadBtn.style.transform = 'scale(1)', 200);
+            }
+        }
+
+        uploadBtn.addEventListener('click', async () => {
+            if (!selectedFile) {
+                statusText.textContent = '⚠️ 请先选择要打印的文件！';
+                statusText.style.color = '#ffeb3b';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            statusText.textContent = '🚀 正在穿透上传中...';
+            statusText.style.color = '#fff';
+            uploadBtn.disabled = true;
+            uploadBtn.style.opacity = '0.7';
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: getAuthHeader(),  // 携带登录token
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.code === 200) {
+                    statusText.textContent = '✅ 投递成功！卧室打印机正在预热...';
+                    statusText.style.color = '#4ade80';
+                    selectedFile = null;
+                    fileNameDisplay.textContent = '点击或拖拽文件到此区域';
+                    fileInput.value = '';
+                } else {
+                    statusText.textContent = '❌ 拦截或失败: ' + (result.detail || result.msg);
+                    statusText.style.color = '#f87171';
+                }
+            } catch (error) {
+                statusText.textContent = '⚠️ 网络开小差了，请重试';
+                statusText.style.color = '#f87171';
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.style.opacity = '1';
+            }
+        });
+    </script>
+</body>
+</html>

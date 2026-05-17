@@ -1,12 +1,57 @@
-node_modules/
-dist/
-.venv/
-venv/
+# ===== 敏感文件 =====
+# GitHub上传Token（绝对不能上传！）
+*Token*.txt
+*.token
+token.txt
+
+# ===== Python =====
 __pycache__/
-*.pyc
-.env
-*.db
-*.sqlite3
-.vscode/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+*.whl
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# ===== Node =====
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm/
+.npm/
+.yarn/
+.bun/
+
+# ===== IDE =====
 .idea/
+.vscode/
+*.swp
+*.swo
 .DS_Store
+Thumbs.db
+
+# ===== 项目特定 =====
+# 数据库文件（运行时生成）
+*.db
+
+# 上传文件目录（运行时生成）
+uploads/
+
+# PyInstaller打包
+*.spec.backup
+_MeshPrint.spec
+
+# 测试服务器脚本
+_test_server.py
+
+# ===== 微信小程序（可选上传）=====
+# 如果需要排除小程序源码
+# miniprogram/
+
+# ===== 一键部署脚本（保留上传）=====
+# script/0.一键全自动配置全栈开发环境.ps1

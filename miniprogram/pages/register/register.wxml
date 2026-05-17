@@ -1,0 +1,13 @@
+<view style="padding: 50rpx; text-align: center;">
+  <view style="font-size: 48rpx; margin-bottom: 60rpx; color: #333; font-weight: bold;">MeshPrint 云印店</view>
+  <view style="background: #f8f8f8; border-radius: 20rpx; padding: 40rpx 30rpx;">
+    <input type="text" placeholder="用户名（3位以上）" bindinput="onUsernameInput" style="background: #fff; border-radius: 10rpx; padding: 25rpx; margin-bottom: 30rpx; font-size: 28rpx;" />
+    <input type="password" placeholder="密码（6位以上）" bindinput="onPasswordInput" style="background: #fff; border-radius: 10rpx; padding: 25rpx; margin-bottom: 30rpx; font-size: 28rpx;" />
+    <input type="text" placeholder="昵称（可选）" bindinput="onNicknameInput" style="background: #fff; border-radius: 10rpx; padding: 25rpx; margin-bottom: 30rpx; font-size: 28rpx;" />
+    <view style="color: #e64340; font-size: 24rpx; min-height: 36rpx; margin-bottom: 20rpx;">{{errorMsg}}</view>
+    <button type="primary" bindtap="doRegister" style="border-radius: 50rpx; background-color: #07c160;">注册</button>
+    <view style="margin-top: 40rpx; font-size: 26rpx; color: #666;">
+      已有账号？<text style="color: #07c160;" bindtap="goLogin">立即登录</text>
+    </view>
+  </view>
+</view>
