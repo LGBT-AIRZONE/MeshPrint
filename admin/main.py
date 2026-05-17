@@ -773,6 +773,12 @@ async def health_check():
     return JSONResponse({"code": 200, "msg": "服务运行正常", "service": "MeshPrint"})
 
 
+@app.get("/favicon.ico")
+async def favicon():
+    """处理浏览器 favicon 请求，避免 404 日志污染"""
+    return JSONResponse({"code": 204}, status_code=204)
+
+
 def _auto_print_task(job_id: str, filename: str, file_path: str):
     """后台自动打印文件（Windows）"""
     try:
