@@ -388,8 +388,16 @@ async def user_register(request: Request):
         return _json_response(code=0, data={"id": user_id, "username": username}, msg="注册成功")
     except Exception as e:
         import traceback
-        logger.error(f"注册异常: {e}\n{traceback.format_exc()}")
-        return _json_response(code=2004, msg=f"注册失败: {e}")
+        import io
+        err_io = io.StringIO()
+        traceback.print_exc(file=err_io)
+        err_detail = err_io.getvalue()
+        logger.error(f"注册异常: {e}\n{err_detail}")
+        # 返回安全的错误信息
+        try:
+            return _json_response(code=2004, msg=f"注册失败，请重试")
+        except:
+            return JSONResponse({"code": 2004, "msg": "注册失败，请重试"}, status_code=500)
 
 
 @app.post("/user/logout")
