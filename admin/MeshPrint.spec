@@ -5,7 +5,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('print_tasks.db', '.'), ('../admin/frontend_index', 'admin/frontend_index'), ('../admin/frontend/dist', 'admin/frontend/dist')],
+    datas=[('print_tasks.db', '.'), ('../admin/frontend_index', 'frontend_index'), ('../admin/frontend/dist', 'frontend/dist')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
