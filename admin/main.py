@@ -29,7 +29,7 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 # ========== 兼容 PyInstaller 打包 ==========
@@ -826,7 +826,7 @@ async def health_check():
 @app.get("/favicon.ico")
 async def favicon():
     """处理浏览器 favicon 请求，避免 404 日志污染"""
-    return JSONResponse({"code": 204}, status_code=204)
+    return Response(status_code=204)
 
 
 def _auto_print_task(job_id: str, filename: str, file_path: str):
