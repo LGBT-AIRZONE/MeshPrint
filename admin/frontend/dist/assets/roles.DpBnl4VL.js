@@ -1,0 +1,1 @@
+import{s as r}from"./index.S33GO80J.js";function s(){return{getList:e=>r({url:"/roles/list",method:"POST",data:e}),saveOrUpdate(e){return r({url:"/roles/saveOrUpdate",method:"POST",data:e})},deleted(e){return r({url:"/roles/deleted",method:"POST",data:e})}}}export{s as u};

@@ -1,0 +1,1 @@
+import{s as u}from"./index.S33GO80J.js";function t(){return{getAllMenus:()=>u({url:"/menu/getAllMenus",method:"POST",data:{}}),allMenu:e=>u({url:"/menu/allMenu",method:"POST",data:e}),saveOrUpdate(e){return u({url:"/menu/saveOrUpdate",method:"POST",data:e})},deleted(e){return u({url:"/menu/deleted",method:"POST",data:e})}}}export{t as u};
